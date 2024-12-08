@@ -1,0 +1,9 @@
+services:
+  calc:
+    build: ./php
+    container_name: calc
+    volumes:
+      - ../:/app
+      - ../data/php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    restart: unless-stopped
+    env_file: ../.env

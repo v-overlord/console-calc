@@ -1,0 +1,48 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  Calc\Command\CalculatorCommand:
+    arguments:
+      $logger: '@logger'
+    tags: [ 'console.command' ]
+
+  logger:
+    class: Monolog\Logger
+    arguments:
+      - 'Calc'
+    calls:
+      - method: pushHandler
+        arguments:
+          - '@monolog.handler.stream'
+
+  monolog.color_scheme.traffic_light:
+    class: Bramus\Monolog\Formatter\ColorSchemes\TrafficLight
+
+  monolog.formatter.colored_line:
+    class: Bramus\Monolog\Formatter\ColoredLineFormatter
+    arguments:
+      - '@monolog.color_scheme.traffic_light'
+      - '%log_message_format%'
+      - '%log_date_format%'
+
+  monolog.handler.stream:
+    class: Monolog\Handler\StreamHandler
+    arguments: [ '%log_file%', '%log_level%' ]
+    calls:
+      - [ 'setFormatter', [ '@monolog.formatter.colored_line' ] ]
+
+  Calc\Renderer\RendererFactory:
+    class: Calc\Renderer\RendererFactory
+    arguments:
+      - '%app.renderer.id%'
+
+parameters:
+  app.renderer.id: 'cli'
+
+  log_file: 'php://stdout'
+  log_level: 'DEBUG'
+  log_date_format: 'Y-m-d\TH:i:s.uP'
+  log_message_format: '[%%datetime%%] %%level_name%%: %%message%% [%%context%%]'
